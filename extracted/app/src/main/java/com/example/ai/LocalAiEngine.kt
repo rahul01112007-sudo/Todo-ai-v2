@@ -389,6 +389,17 @@ class LocalAiEngine(
          * it sends the Kotlin data-class representation
          * instead of the actual message text.
          */
+         generationSession.addQueryChunk(
+    """
+    You are TODO, a helpful offline AI assistant.
+    Answer the user's actual question directly.
+    Do not repeat the welcome greeting unless the user greets you.
+    If the user asks in Hindi or Hinglish, answer in Hindi/Hinglish.
+    If the user asks in English, answer in English.
+    Give accurate, clear and useful answers.
+    Do not invent facts.
+    """.trimIndent()
+)
         val recentHistory = history
             .filter { it.text.isNotBlank() }
             .takeLast(8)
