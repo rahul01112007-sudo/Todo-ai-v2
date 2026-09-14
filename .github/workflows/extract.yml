@@ -1,0 +1,35 @@
+name: Extract Project ZIP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP
+        run: |
+          mkdir -p extracted
+          unzip -o TODO-offline-ai-assistant-GITHUB-READY.zip -d extracted
+
+          cp -r extracted/*/. extracted/ 2>/dev/null || true
+          cp -r extracted/* extracted-root 2>/dev/null || true
+
+      - name: Find Android project
+        run: |
+          find . -maxdepth 4 -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -print
+
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Extract Android project from ZIP" || echo "Nothing to commit"
+          git push
