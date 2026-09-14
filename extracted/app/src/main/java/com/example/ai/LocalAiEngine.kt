@@ -341,80 +341,114 @@ class LocalAiEngine(
         }
 
     override fun generateResponse(
-        prompt: String,
-        history: List<ChatMessage>,
-        contextLength: Int,
-        temperature: Float,
-        maxTokens: Int
-    ): Flow<String> = flow {
+    prompt: String,
+    history: List<ChatMessage>,
+    contextLength: Int,
+    temperature: Float,
+    maxTokens: Int
+): Flow<String> = flow {
 
-        val activeSession = session
+    val inference = llmInference
 
-        if (_modelStatus.value != ModelStatus.READY ||
-            activeSession == null
-        ) {
+    if (_modelStatus.value != ModelStatus.READY ||
+        inference == null
+    ) {
+        _engineState.value = AiEngineState.ModelRequired
 
-            _engineState.value =
-                AiEngineState.ModelRequired
+        emit(
+            "Local AI model is not ready. " +
+                "Please load a valid Gemma .task model."
+        )
 
-            emit(
-                "Local AI model is not ready. " +
-                    "Please load a valid Gemma .task model."
-            )
-
-            return@flow
-        }
-
-        try {
-
-            _engineState.value =
-                AiEngineState.Generating()
-
-            /*
-             * Add conversation history.
-             *
-             * We keep this simple first.
-             * Once the basic inference works,
-             * we can improve long-term conversation memory.
-             */
-
-            for (message in history.takeLast(8)) {
-
-                val text =
-                    message.toString()
-
-                if (text.isNotBlank()) {
-                    activeSession.addQueryChunk(text)
-                }
-            }
-
-            activeSession.addQueryChunk(prompt)
-
-            val result =
-    withContext(Dispatchers.Default) {
-        activeSession.generateResponseAsync().get()
+        return@flow
     }
 
-emit(result)
+    var generationSession: LlmInferenceSession? = null
 
-            val current =
-                _currentModelInfo.value?.name
-                    ?: "Local Model"
+    try {
+        _engineState.value = AiEngineState.Generating()
 
-            _engineState.value =
-                AiEngineState.Ready(current)
+        val sessionOptions =
+            LlmInferenceSession.LlmInferenceSessionOptions
+                .builder()
+                .setTemperature(temperature.coerceIn(0.0f, 1.0f))
+                .setTopK(40)
+                .setTopP(0.95f)
+                .build()
 
-        } catch (e: Exception) {
+        generationSession =
+            LlmInferenceSession.createFromOptions(
+                inference,
+                sessionOptions
+            )
 
-            _engineState.value =
-                AiEngineState.Error(
-                    "Generation failed: ${e.message}"
-                )
+        /*
+         * Build the conversation correctly.
+         *
+         * ChatMessage.toString() must NOT be used because
+         * it sends the Kotlin data-class representation
+         * instead of the actual message text.
+         */
+        val recentHistory = history
+            .filter { it.text.isNotBlank() }
+            .takeLast(8)
 
-            emit(
-                "⚠️ Local AI error: ${e.message}"
+        for (message in recentHistory) {
+            val role =
+                if (message.fromUser) "User" else "Assistant"
+
+            generationSession.addQueryChunk(
+                "$role: ${message.text}"
             )
         }
+
+        generationSession.addQueryChunk(
+            "User: $prompt"
+        )
+
+        val result =
+            withContext(Dispatchers.Default) {
+                generationSession
+                    .generateResponseAsync()
+                    .get()
+            }
+
+        val cleanedResult = result
+            .removePrefix("Assistant:")
+            .trim()
+
+        emit(
+            if (cleanedResult.isNotBlank()) {
+                cleanedResult
+            } else {
+                "Sorry, mujhe iska answer generate nahi hua."
+            }
+        )
+
+        val current =
+            _currentModelInfo.value?.name
+                ?: "Local Model"
+
+        _engineState.value =
+            AiEngineState.Ready(current)
+
+    } catch (e: Exception) {
+
+        _engineState.value =
+            AiEngineState.Error(
+                "Generation failed: ${e.message}"
+            )
+
+        emit(
+            "⚠️ Local AI error: ${e.message ?: "Unknown error"}"
+        )
+
+    } finally {
+        try {
+            generationSession?.close()
+        } catch (_: Exception) {
+        }
+    }
     }
 
     override fun cancelGeneration() {
