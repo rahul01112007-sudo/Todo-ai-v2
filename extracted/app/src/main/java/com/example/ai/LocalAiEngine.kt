@@ -390,33 +390,12 @@ class LocalAiEngine(
 
             activeSession.addQueryChunk(prompt)
 
-            var completeResponse = ""
-
-            activeSession
-                .generateResponseAsync { partial, done ->
-
-                    if (partial.isNotEmpty()) {
-                        completeResponse += partial
-                    }
-                }
-
-            /*
-             * generateResponseAsync uses a callback.
-             * The first version of this engine therefore
-             * returns the generated text after inference.
-             */
-
-            val future =
-                activeSession.generateResponseAsync()
-
             val result =
-                withContext(Dispatchers.Default) {
-                    future.get()
-                }
+    withContext(Dispatchers.Default) {
+        activeSession.generateResponseAsync().get()
+    }
 
-            completeResponse = result
-
-            emit(completeResponse)
+emit(result)
 
             val current =
                 _currentModelInfo.value?.name
