@@ -303,7 +303,10 @@ class LocalAiEngine(
         val p = prompt.trim().lowercase()
 
         // Greeting / Identity
-        if (p.contains("namaste") || p.contains("hello") || p.contains("hi") || p.contains("hey") || p.contains("kuch bhi")) {
+        if (
+    Regex("""\b(namaste|hello|hi|hey)\b""").containsMatchIn(p) ||
+    p == "kuch bhi"
+) {
             return "Namaste! 🙏 Main TODO hoon — tumhara 100% offline personal AI assistant. " +
                     "Aapka sara data sirf isi phone me surakshit hai. Bataiye, aaj main aapki kya madad kar sakta hoon?"
         }
