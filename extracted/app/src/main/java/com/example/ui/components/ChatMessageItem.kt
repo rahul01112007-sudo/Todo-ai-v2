@@ -241,11 +241,21 @@ fun ThinkingIndicator() {
 
 @Composable
 fun FormattedMessageText(text: String) {
-    if (text.contains("```")) {
-        // Display code block separation
-        val parts = text.split("```")
+    // Fix escaped characters coming from the local AI model
+    val cleanText = text
+        .replace("\\r\\n", "\n")
+        .replace("\\n", "\n")
+        .replace("\\r", "\r")
+        .replace("\\t", "\t")
+        .replace("**", "")
+        .replace("__", "")
+
+    if (cleanText.contains("```")) {
+        val parts = cleanText.split("```")
+
         Column {
             parts.forEachIndexed { index, part ->
+
                 if (index % 2 == 1) {
                     // Code block
                     Box(
@@ -254,7 +264,11 @@ fun FormattedMessageText(text: String) {
                             .padding(vertical = 4.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(DeepBlack)
-                            .border(1.dp, NeonGlowBorder, RoundedCornerShape(8.dp))
+                            .border(
+                                1.dp,
+                                NeonGlowBorder,
+                                RoundedCornerShape(8.dp)
+                            )
                             .padding(10.dp)
                     ) {
                         Text(
@@ -276,7 +290,7 @@ fun FormattedMessageText(text: String) {
         }
     } else {
         Text(
-            text = text,
+            text = cleanText.trim(),
             color = TextPrimary,
             fontSize = 14.5.sp,
             lineHeight = 21.sp
