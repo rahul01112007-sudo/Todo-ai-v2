@@ -1,0 +1,6 @@
+{
+  "name": "TODO",
+  "description": "Your Offline AI Assistant - 100% private, local on-device AI chat with model management and tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

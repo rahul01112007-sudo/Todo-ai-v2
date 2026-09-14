@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Glowing Outer Hexagon Ring -->
+    <path
+        android:pathData="M54,26 L78,40 L78,68 L54,82 L30,68 L30,40 Z"
+        android:strokeWidth="3"
+        android:strokeColor="#FFC084FC"
+        android:strokeLineJoin="round"
+        android:fillColor="#15A855F7" />
+
+    <!-- Inner Core Hexagon -->
+    <path
+        android:pathData="M54,34 L71,44 L71,64 L54,74 L37,64 L37,44 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="37"
+                android:startY="34"
+                android:endX="71"
+                android:endY="74"
+                android:type="linear">
+                <item android:color="#FFA855F7" android:offset="0.0" />
+                <item android:color="#FF7C3AED" android:offset="0.6" />
+                <item android:color="#FF4C1D95" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Futuristic AI Spark / Center Star -->
+    <path
+        android:pathData="M54,44 L57,51 L64,54 L57,57 L54,64 L51,57 L44,54 L51,51 Z"
+        android:fillColor="#FFFFFFFF" />
+
+    <!-- Orbit Accent Dots -->
+    <path
+        android:pathData="M54,26m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0"
+        android:fillColor="#FFE9D5FF" />
+    <path
+        android:pathData="M78,68m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0"
+        android:fillColor="#FFE9D5FF" />
+    <path
+        android:pathData="M30,68m-2.5,0a2.5,2.5 0 1,0 5,0a2.5,2.5 0 1,0 -5,0"
+        android:fillColor="#FFE9D5FF" />
+</vector>

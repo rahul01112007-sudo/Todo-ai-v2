@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="neon_purple_primary">#FFA855F7</color>
+    <color name="neon_purple_light">#FFC084FC</color>
+    <color name="neon_purple_dark">#FF7C3AED</color>
+    <color name="neon_purple_deep">#FF4C1D95</color>
+    <color name="dark_canvas">#FF0A0812</color>
+    <color name="dark_card">#FF141026</color>
+    <color name="dark_surface">#FF1D1636</color>
+    <color name="glow_border">#3DA855F7</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="text_secondary">#FFA1A1AA</color>
+</resources>
