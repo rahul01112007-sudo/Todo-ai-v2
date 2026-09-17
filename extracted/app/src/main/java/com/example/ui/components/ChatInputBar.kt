@@ -87,6 +87,7 @@ modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var showQuickMenu by remember { mutableStateOf(false) }
+    var selectedFileName by remember { mutableStateOf<String?>(null) }
     val filePickerLauncher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.OpenDocument()
 ) { uri ->
@@ -95,7 +96,8 @@ modifier: Modifier = Modifier
             context.contentResolver.getType(uri)
                 ?: "application/octet-stream"
 
-        onFileSelected(uri, mimeType)
+        selectedFileName = uri.lastPathSegment ?: "Attached file"
+onFileSelected(uri, mimeType)
     }
     }
 
@@ -134,6 +136,17 @@ modifier: Modifier = Modifier
         } else {
             Toast.makeText(context, "Microphone permission required for voice input", Toast.LENGTH_SHORT).show()
         }
+    } if (selectedFileName != null) {
+    Text(
+        text = "📎 ${selectedFileName}",
+        color = NeonPurpleSecondary,
+        fontSize = 12.sp,
+        modifier = Modifier.padding(
+            start = 12.dp,
+            end = 12.dp,
+            bottom = 6.dp
+        )
+    )
     }
 
     Column(
