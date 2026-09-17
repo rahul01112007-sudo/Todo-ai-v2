@@ -137,12 +137,58 @@ fun clearSelectedFile() {
 
     fun sendMessage(userText: String) {
         val trimmed = userText.trim()
-        if (trimmed.isEmpty()) return
+val selectedFileInfo = _selectedFile.value
+
+if (trimmed.isEmpty() && selectedFileInfo == null) return
 
         val convId = _currentConversationId.value ?: return
 
         viewModelScope.launch {
-            // Save user message
+
+    // Read attached image/PDF locally
+    val documentText = selectedFileInfo?.let { (uri, mimeType) ->
+        try {
+            documentReader.extractText(uri, mimeType)
+                .take(20000)
+        } catch (e: Exception) {
+            ""
+        }
+    }.orEmpty()
+
+    // Clear attachment after reading
+    if (selectedFileInfo != null) {
+        clearSelectedFile()
+    }
+
+    // Build the actual prompt for TODO AI
+    val aiPrompt = when {
+        documentText.isNotBlank() && trimmed.isNotBlank() -> {
+            """
+            The user attached an image or document.
+
+            Extracted text:
+            $documentText
+
+            User request:
+            $trimmed
+            """.trimIndent()
+        }
+
+        documentText.isNotBlank() -> {
+            """
+            The user attached an image or document.
+
+            Extracted text:
+            $documentText
+
+            Turn this into a clear, useful TODO/task list.
+            """.trimIndent()
+        }
+
+        else -> trimmed
+    }
+
+    // Save user message
             chatRepository.saveMessage(
                 conversationId = convId,
                 text = trimmed,
@@ -201,7 +247,7 @@ val aiHistory = (memoryMessages + existingMessages)
             currentGenerationJob = launch {
                 try {
                     aiEngine.generateResponse(
-                        prompt = trimmed,
+                        prompt = aiPrompt,
                         history = aiHistory,
                         contextLength = contextLength.value,
                         temperature = temperature.value,
