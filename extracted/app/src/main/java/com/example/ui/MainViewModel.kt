@@ -2,6 +2,7 @@ package com.example.ui
 
 import android.app.Application
 import android.net.Uri
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ai.AiEngine
@@ -78,6 +79,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private var currentGenerationJob: Job? = null
+    // Selected media/document for AI reading
+private val _selectedFile = MutableStateFlow<Pair<Uri, String>?>(null)
+val selectedFile: StateFlow<Pair<Uri, String>?> = _selectedFile.asStateFlow()
+
+fun onFileSelected(uri: Uri, mimeType: String) {
+    _selectedFile.value = uri to mimeType
+}
+
+fun clearSelectedFile() {
+    _selectedFile.value = null
+}
 
     init {
         viewModelScope.launch {
