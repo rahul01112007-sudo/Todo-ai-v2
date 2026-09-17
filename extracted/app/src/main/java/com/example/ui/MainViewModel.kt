@@ -136,7 +136,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             // Auto-update conversation title if it's the first user message
-            val existingMessages = chatRepository.getMessagesList(convId)
+            // Current conversation history
+val existingMessages = chatRepository.getMessagesList(convId)
+
+// Search older conversations for relevant memory
+val relevantMemory = chatRepository
+    .searchMessagesForMemory(trimmed, 10)
+    .filter { it.conversationId != convId }
+
+// Also keep a small amount of recent history from other chats
+val recentMemory = chatRepository
+    .getRecentMessagesForMemory(20)
+    .filter { it.conversationId != convId }
+
+// Combine memory without duplicate messages
+val memoryMessages = (relevantMemory + recentMemory)
+    .distinctBy { it.id }
+    .takeLast(25)
+
+// Give TODO current chat + old relevant memory
+val aiHistory = (memoryMessages + existingMessages)
+    .distinctBy { it.id }
+    .takeLast(40)
             val userMessages = existingMessages.filter { it.fromUser }
             if (userMessages.size == 1) {
                 val title = if (trimmed.length > 28) trimmed.take(28) + "..." else trimmed
@@ -167,7 +188,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 try {
                     aiEngine.generateResponse(
                         prompt = trimmed,
-                        history = existingMessages,
+                        history = aiHistory,
                         contextLength = contextLength.value,
                         temperature = temperature.value,
                         maxTokens = maxTokens.value
