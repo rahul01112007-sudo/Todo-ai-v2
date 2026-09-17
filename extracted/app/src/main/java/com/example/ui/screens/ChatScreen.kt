@@ -307,16 +307,19 @@ fun ChatScreen(
 
         // Bottom Input Bar
         ChatInputBar(
-            inputText = inputText,
-            onInputChange = { inputText = it },
-            onSendMessage = { text ->
-                viewModel.sendMessage(text)
-            },
-            isGenerating = isGenerating,
-            onCancelGeneration = { viewModel.cancelGeneration() },
-            onQuickToolSelect = {
-                onOpenTools()
-            }
-        )
+    inputText = inputText,
+    onInputChange = { inputText = it },
+    onSendMessage = { text ->
+        viewModel.sendMessage(text)
+    },
+    isGenerating = isGenerating,
+    onCancelGeneration = { viewModel.cancelGeneration() },
+    onQuickToolSelect = {
+        onOpenTools()
+    },
+    onFileSelected = { uri, mimeType ->
+        viewModel.onFileSelected(uri, mimeType)
+    }
+)
     }
 }
