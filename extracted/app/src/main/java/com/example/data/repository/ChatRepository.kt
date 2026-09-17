@@ -36,7 +36,27 @@ class ChatRepository(
         chatMessageDao.searchMessages(query).map { list ->
             list.map { it.toDomain() }
         }
+// Memory support: search relevant messages from old conversations.
+suspend fun searchMessagesForMemory(
+    query: String,
+    limit: Int = 20
+): List<ChatMessage> =
+    chatMessageDao.searchMessagesForMemory(query, limit)
+        .map { it.toDomain() }
 
+// Memory support: get recent messages across all conversations.
+suspend fun getRecentMessagesForMemory(
+    limit: Int = 50
+): List<ChatMessage> =
+    chatMessageDao.getRecentMessagesForMemory(limit)
+        .map { it.toDomain() }
+
+// Memory support: get recent user messages across all conversations.
+suspend fun getRecentUserMessages(
+    limit: Int = 30
+): List<ChatMessage> =
+    chatMessageDao.getRecentUserMessages(limit)
+        .map { it.toDomain() }
     suspend fun createConversation(id: String = UUID.randomUUID().toString(), title: String): String {
         val now = System.currentTimeMillis()
         conversationDao.insertOrUpdate(
