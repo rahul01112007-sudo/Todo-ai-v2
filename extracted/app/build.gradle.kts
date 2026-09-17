@@ -71,6 +71,8 @@ googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.W
 // This makes it easy to add them back in the future if needed.
 dependencies {
 implementation("com.google.mediapipe:tasks-genai:0.10.35")
+implementation("com.google.mlkit:text-recognition:16.0.1")
+implementation("com.google.mlkit:text-recognition-devanagari:16.0.1")
   implementation(platform(libs.androidx.compose.bom))
   implementation(platform(libs.firebase.bom))
   // implementation(libs.accompanist.permissions)
