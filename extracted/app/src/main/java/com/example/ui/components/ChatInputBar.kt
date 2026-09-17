@@ -1,8 +1,8 @@
 package com.example.ui.components
-
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.content.pm.PackageManager
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -82,10 +82,22 @@ fun ChatInputBar(
     isGenerating: Boolean,
     onCancelGeneration: () -> Unit,
     onQuickToolSelect: (String) -> Unit,
-    modifier: Modifier = Modifier
+onFileSelected: (Uri, String) -> Unit = { _, _ -> },
+modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var showQuickMenu by remember { mutableStateOf(false) }
+    val filePickerLauncher = rememberLauncherForActivityResult(
+    contract = ActivityResultContracts.OpenDocument()
+) { uri ->
+    if (uri != null) {
+        val mimeType =
+            context.contentResolver.getType(uri)
+                ?: "application/octet-stream"
+
+        onFileSelected(uri, mimeType)
+    }
+    }
 
     // Speech recognition launcher
     val speechLauncher = rememberLauncherForActivityResult(
@@ -141,6 +153,7 @@ fun ChatInputBar(
             ) {
                 items(
                     listOf(
+                        Pair("📎 Attach File", "attach_file")
                         Pair("Summarize text", "Can you summarize the following text into key bullet points: "),
                         Pair("Write code", "Write a clean Kotlin function to "),
                         Pair("Calculate", "Calculate "),
@@ -150,13 +163,25 @@ fun ChatInputBar(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(16.dp))
-                            .background(DarkCardElevated)
-                            .border(1.dp, DarkSurfaceStroke, RoundedCornerShape(16.dp))
-                            .clickable {
-                                onInputChange(promptTemplate)
-                                showQuickMenu = false
-                            }
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+.background(DarkCardElevated)
+.border(1.dp, DarkSurfaceStroke, RoundedCornerShape(16.dp))
+.clickable {
+    if (promptTemplate == "attach_file") {
+        filePickerLauncher.launch(
+            arrayOf(
+                "image/*",
+                "application/pdf",
+                "text/*",
+                "application/*"
+            )
+        )
+    } else {
+        onInputChange(promptTemplate)
+    }
+
+    showQuickMenu = false
+}
+.padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
                             text = chipLabel,
@@ -176,7 +201,9 @@ fun ChatInputBar(
         ) {
             // "+" Button
             IconButton(
-                onClick = { showQuickMenu = !showQuickMenu },
+                onClick = {
+    showQuickMenu = !showQuickMenu
+},
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
