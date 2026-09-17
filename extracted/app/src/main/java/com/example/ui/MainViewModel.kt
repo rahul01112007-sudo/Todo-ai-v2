@@ -2,7 +2,6 @@ package com.example.ui
 
 import android.app.Application
 import android.net.Uri
-import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ai.AiEngine
