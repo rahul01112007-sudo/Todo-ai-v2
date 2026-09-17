@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ai.AiEngine
 import com.example.ai.LocalAiEngine
+import com.example.ai.DocumentReader
 import com.example.data.database.AppDatabase
 import com.example.data.database.NoteEntity
 import com.example.data.model.AiEngineState
@@ -37,6 +38,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val notesRepository = NotesRepository(db.noteDao())
     val settingsRepository = SettingsRepository(application)
     val aiEngine: AiEngine = LocalAiEngine(application)
+    private val documentReader = DocumentReader(application)
 
     val isOnboardingCompleted = MutableStateFlow(settingsRepository.isOnboardingCompleted)
 
