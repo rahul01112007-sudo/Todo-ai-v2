@@ -52,6 +52,7 @@ import com.example.data.model.ModelStatus
 import com.example.ui.MainViewModel
 import com.example.ui.components.ChatInputBar
 import com.example.ui.components.ChatMessageItem
+import com.example.ui.components.ThinkingIndicator
 import com.example.ui.components.TopAppBar
 import com.example.ui.theme.DarkCanvas
 import com.example.ui.theme.DarkCardElevated
@@ -251,7 +252,15 @@ fun ChatScreen(
                         )
                     }
                 }
-
+if (isGenerating) {
+    Box(
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            .padding(start = 52.dp, bottom = 12.dp)
+    ) {
+        ThinkingIndicator()
+    }
+}
                 // Banner if model is required
                 if (modelStatus == ModelStatus.NOT_INSTALLED || modelStatus == ModelStatus.NOT_LOADED) {
                     Box(
