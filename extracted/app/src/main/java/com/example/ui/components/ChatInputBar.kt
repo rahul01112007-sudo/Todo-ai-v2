@@ -136,7 +136,7 @@ onFileSelected(uri, mimeType)
         } else {
             Toast.makeText(context, "Microphone permission required for voice input", Toast.LENGTH_SHORT).show()
         }
-    } if (selectedFileName != null) {
+    }
     Text(
         text = "📎 ${selectedFileName}",
         color = NeonPurpleSecondary,
@@ -166,8 +166,8 @@ onFileSelected(uri, mimeType)
             ) {
                 items(
                     listOf(
-                        Pair("📎 Attach File", "attach_file")
-                        Pair("Summarize text", "Can you summarize the following text into key bullet points: "),
+                        Pair("📎 Attach File", "attach_file"),
+Pair("Summarize text", "Can you summarize the following text into key bullet points: "),
                         Pair("Write code", "Write a clean Kotlin function to "),
                         Pair("Calculate", "Calculate "),
                         Pair("Explain offline AI", "Explain how local on-device AI models protect my data privacy.")
