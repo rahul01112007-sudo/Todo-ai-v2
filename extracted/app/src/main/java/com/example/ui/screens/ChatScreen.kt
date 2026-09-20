@@ -90,6 +90,7 @@ fun ChatScreen(
     val listState = rememberLazyListState()
 
     val isGenerating = engineState is AiEngineState.Generating
+    val isFileProcessing by viewModel.isFileProcessing.collectAsState()
 
     // Auto-scroll to newest message
     LaunchedEffect(messages.size, messages.lastOrNull()?.text) {
