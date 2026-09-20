@@ -89,16 +89,41 @@ val searchResults: StateFlow<List<ChatMessage>> = searchQuery
     )
 
     private var currentGenerationJob: Job? = null
-    // Selected media/document for AI reading
+
+// Selected media/document for AI reading
 private val _selectedFile = MutableStateFlow<Pair<Uri, String>?>(null)
 val selectedFile: StateFlow<Pair<Uri, String>?> = _selectedFile.asStateFlow()
 
+private val _isFileProcessing = MutableStateFlow(false)
+val isFileProcessing: StateFlow<Boolean> = _isFileProcessing.asStateFlow()
+
+private val _extractedFileText = MutableStateFlow<String?>(null)
+val extractedFileText: StateFlow<String?> = _extractedFileText.asStateFlow()
+
 fun onFileSelected(uri: Uri, mimeType: String) {
     _selectedFile.value = uri to mimeType
+    _extractedFileText.value = null
+    _isFileProcessing.value = true
+
+    viewModelScope.launch {
+        try {
+            val text = documentReader
+                .extractText(uri, mimeType)
+                .take(20000)
+
+            _extractedFileText.value = text
+        } catch (e: Exception) {
+            _extractedFileText.value = null
+        } finally {
+            _isFileProcessing.value = false
+        }
+    }
 }
 
 fun clearSelectedFile() {
     _selectedFile.value = null
+    _extractedFileText.value = null
+    _isFileProcessing.value = false
 }
 
     init {
@@ -153,20 +178,7 @@ if (trimmed.isEmpty() && selectedFileInfo == null) return
 
         viewModelScope.launch {
 
-    // Read attached image/PDF locally
-    val documentText = selectedFileInfo?.let { (uri, mimeType) ->
-        try {
-            documentReader.extractText(uri, mimeType)
-                .take(20000)
-        } catch (e: Exception) {
-            ""
-        }
-    }.orEmpty()
-
-    // Clear attachment after reading
-    if (selectedFileInfo != null) {
-        clearSelectedFile()
-    }
+    val documentText = _extractedFileText.value.orEmpty()
 
     // Build the actual prompt for TODO AI
     val aiPrompt = when {
@@ -243,13 +255,7 @@ val aiHistory = (memoryMessages + existingMessages)
             }
 
             // Prepare AI placeholder message
-            val aiMessageId = UUID.randomUUID().toString()
-            val savedAiPlaceholder = chatRepository.saveMessage(
-                conversationId = convId,
-                text = "Thinking...",
-                fromUser = false,
-                messageId = aiMessageId
-            )
+            
 
             currentGenerationJob?.cancel()
             currentGenerationJob = launch {
