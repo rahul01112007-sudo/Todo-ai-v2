@@ -137,17 +137,6 @@ onFileSelected(uri, mimeType)
             Toast.makeText(context, "Microphone permission required for voice input", Toast.LENGTH_SHORT).show()
         }
     }
-    Text(
-        text = "📎 ${selectedFileName}",
-        color = NeonPurpleSecondary,
-        fontSize = 12.sp,
-        modifier = Modifier.padding(
-            start = 12.dp,
-            end = 12.dp,
-            bottom = 6.dp
-        )
-    )
-    }
 
     Column(
         modifier = modifier
