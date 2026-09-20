@@ -80,7 +80,8 @@ fun ChatInputBar(
     onInputChange: (String) -> Unit,
     onSendMessage: (String) -> Unit,
     isGenerating: Boolean,
-    onCancelGeneration: () -> Unit,
+isFileProcessing: Boolean = false,
+onCancelGeneration: () -> Unit,
     onQuickToolSelect: (String) -> Unit,
 onFileSelected: (Uri, String) -> Unit = { _, _ -> },
 modifier: Modifier = Modifier
@@ -88,7 +89,6 @@ modifier: Modifier = Modifier
     val context = LocalContext.current
     var showQuickMenu by remember { mutableStateOf(false) }
     var selectedFileName by remember { mutableStateOf<String?>(null) }
-    var isFileProcessing by remember { mutableStateOf(false) }
     val filePickerLauncher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.OpenDocument()
 ) { uri ->
@@ -101,9 +101,7 @@ modifier: Modifier = Modifier
     isFileProcessing = true
 
     onFileSelected(uri, mimeType)
-
-    // File is now selected and ready for sending.
-    isFileProcessing = false
+    
     }
     }
 
@@ -310,7 +308,11 @@ Pair("Summarize text", "Can you summarize the following text into key bullet poi
             Spacer(modifier = Modifier.width(6.dp))
 
             // Send / Stop Button
-            val isEnabled = inputText.isNotBlank() || isGenerating
+            val isEnabled = if (isGenerating) {
+    true
+} else {
+    !isFileProcessing && inputText.isNotBlank()
+            }
             IconButton(
                 onClick = {
                     if (isGenerating) {
