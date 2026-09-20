@@ -79,9 +79,7 @@ val searchResults: StateFlow<List<ChatMessage>> = searchQuery
         if (q.isBlank()) {
             flowOf(emptyList())
         } else {
-            flow {
-                emit(chatRepository.searchMessagesForMemory(q.trim(), 50))
-            }
+    flowOf(chatRepository.searchMessagesForMemory(q.trim(), 50))
         }
     }
     .stateIn(
