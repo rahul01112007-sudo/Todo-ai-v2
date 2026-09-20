@@ -88,16 +88,22 @@ modifier: Modifier = Modifier
     val context = LocalContext.current
     var showQuickMenu by remember { mutableStateOf(false) }
     var selectedFileName by remember { mutableStateOf<String?>(null) }
+    var isFileProcessing by remember { mutableStateOf(false) }
     val filePickerLauncher = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.OpenDocument()
 ) { uri ->
     if (uri != null) {
-        val mimeType =
-            context.contentResolver.getType(uri)
-                ?: "application/octet-stream"
+    val mimeType =
+        context.contentResolver.getType(uri)
+            ?: "application/octet-stream"
 
-        selectedFileName = uri.lastPathSegment ?: "Attached file"
-onFileSelected(uri, mimeType)
+    selectedFileName = uri.lastPathSegment ?: "Attached file"
+    isFileProcessing = true
+
+    onFileSelected(uri, mimeType)
+
+    // File is now selected and ready for sending.
+    isFileProcessing = false
     }
     }
 
