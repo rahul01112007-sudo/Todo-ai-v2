@@ -73,11 +73,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val isSearching = MutableStateFlow(false)
 
     @OptIn(kotlinx.coroutines.FlowPreview::class, kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val searchResults: StateFlow<List<ChatMessage>> = searchQuery
-        .debounce(300)
-        .flatMapLatest { q ->
-            if (q.isBlank()) flowOf(emptyList()) else chatRepository.searchMessages(q.trim())
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+val searchResults: StateFlow<List<ChatMessage>> = searchQuery
+    .debounce(300)
+    .flatMapLatest { q ->
+        if (q.isBlank()) {
+            flowOf(emptyList())
+        } else {
+            flow {
+                emit(chatRepository.searchMessagesForMemory(q.trim(), 50))
+            }
+        }
+    }
+    .stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyList()
+    )
 
     private var currentGenerationJob: Job? = null
     // Selected media/document for AI reading
