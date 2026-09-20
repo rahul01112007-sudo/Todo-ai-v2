@@ -323,6 +323,7 @@ if (isGenerating) {
         viewModel.sendMessage(text)
     },
     isGenerating = isGenerating,
+            isFileProcessing = isFileProcessing,
     onCancelGeneration = { viewModel.cancelGeneration() },
     onQuickToolSelect = {
         onOpenTools()
