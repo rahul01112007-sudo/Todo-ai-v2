@@ -254,38 +254,35 @@ val aiHistory = (memoryMessages + existingMessages)
                 return@launch
             }
 
-            // Prepare AI placeholder message
-            
+            // Start AI generation without creating a fake "Thinking..." message
+currentGenerationJob?.cancel()
 
-            currentGenerationJob?.cancel()
-            currentGenerationJob = launch {
-                try {
-                    aiEngine.generateResponse(
-                        prompt = aiPrompt,
-                        history = aiHistory,
-                        contextLength = contextLength.value,
-                        temperature = temperature.value,
-                        maxTokens = maxTokens.value
-                    ).collect { streamedText ->
-                        // Update the message in database/state
-                        chatRepository.saveMessage(
-                            conversationId = convId,
-                            text = streamedText,
-                            fromUser = false,
-                            messageId = aiMessageId,
-                            timestamp = savedAiPlaceholder.timestamp
-                        )
-                    }
-                } catch (e: Exception) {
-                    chatRepository.saveMessage(
-                        conversationId = convId,
-                        text = "Error generating response: ${e.localizedMessage ?: "Unknown error"}",
-                        fromUser = false,
-                        messageId = aiMessageId,
-                        timestamp = savedAiPlaceholder.timestamp
-                    )
-                }
-            }
+currentGenerationJob = launch {
+    try {
+        aiEngine.generateResponse(
+            prompt = aiPrompt,
+            history = aiHistory,
+            contextLength = contextLength.value,
+            temperature = temperature.value,
+            maxTokens = maxTokens.value
+        ).collect { streamedText ->
+
+            // Save only the real AI response.
+            // No fake "Thinking..." message is stored.
+            chatRepository.saveMessage(
+                conversationId = convId,
+                text = streamedText,
+                fromUser = false
+            )
+        }
+    } catch (e: Exception) {
+        chatRepository.saveMessage(
+            conversationId = convId,
+            text = "Error generating response: ${e.localizedMessage ?: "Unknown error"}",
+            fromUser = false
+        )
+    }
+}
         }
     }
 
