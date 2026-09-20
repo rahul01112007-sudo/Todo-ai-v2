@@ -26,11 +26,6 @@ class ChatRepository(
 
     suspend fun getMessagesList(conversationId: String): List<ChatMessage> =
         chatMessageDao.getMessagesList(conversationId).map { it.toDomain() }
-
-    fun searchMessages(query: String): Flow<List<ChatMessage>> =
-        chatMessageDao.searchMessages(query).map { list ->
-            list.map { it.toDomain() }
-        }
 // Memory support: search relevant messages from old conversations.
 suspend fun searchMessagesForMemory(
     query: String,
