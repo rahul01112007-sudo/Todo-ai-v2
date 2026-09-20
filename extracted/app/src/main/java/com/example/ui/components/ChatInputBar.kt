@@ -98,7 +98,7 @@ modifier: Modifier = Modifier
             ?: "application/octet-stream"
 
     selectedFileName = uri.lastPathSegment ?: "Attached file"
-    isFileProcessing = true
+
 
     onFileSelected(uri, mimeType)
     
